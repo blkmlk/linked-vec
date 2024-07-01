@@ -41,18 +41,11 @@ impl<T> LinkedVec<T> {
     }
 
     pub fn pop_front(&mut self) -> Option<T> {
-        let mut front = self.front_mut();
-
-        if front.len() == 0 {
-            if self.list.len() == 1 {
-                return None;
-            }
-
-            self.list.pop_front()?;
-            front = self.front_mut();
+        if self.front().len() == 1 && self.list.len() > 1 {
+            self.list.pop_front()?.pop_front()
+        } else {
+            self.front_mut().pop_front()
         }
-
-        front.pop_front()
     }
 
     pub fn push_back(&mut self, value: T) {
@@ -68,18 +61,11 @@ impl<T> LinkedVec<T> {
     }
 
     pub fn pop_back(&mut self) -> Option<T> {
-        let mut back = self.back_mut();
-
-        if back.len() == 0 {
-            if self.list.len() == 1 {
-                return None;
-            }
-
-            self.list.pop_back()?;
-            back = self.back_mut();
+        if self.back().len() == 1 && self.list.len() > 1 {
+            self.list.pop_back()?.pop_back()
+        } else {
+            self.back_mut().pop_back()
         }
-
-        back.pop_back()
     }
 
     fn front(&self) -> &VecDeque<T> {
@@ -116,7 +102,7 @@ mod tests {
     use crate::LinkedVec;
 
     #[test]
-    fn test_push_front() {
+    fn test_push_front_pop_front() {
         let mut lv = LinkedVec::new(5);
 
         lv.push_front(1);
@@ -142,7 +128,7 @@ mod tests {
     }
 
     #[test]
-    fn test_push_back() {
+    fn test_push_back_pop_front() {
         let mut lv = LinkedVec::new(5);
 
         lv.push_back(1);
@@ -165,5 +151,109 @@ mod tests {
 
         assert_eq!(lv.len(), 0);
         assert_eq!(lv.capacity(), 5);
+    }
+
+    #[test]
+    fn test_push_front_pop_back() {
+        let mut lv = LinkedVec::new(5);
+
+        lv.push_front(1);
+        lv.push_front(2);
+        lv.push_front(3);
+        lv.push_front(4);
+        lv.push_front(5);
+        lv.push_front(6);
+
+        assert_eq!(lv.len(), 6);
+        assert_eq!(lv.capacity(), 10);
+
+        assert_eq!(lv.pop_back(), Some(1));
+        assert_eq!(lv.pop_back(), Some(2));
+        assert_eq!(lv.pop_back(), Some(3));
+        assert_eq!(lv.pop_back(), Some(4));
+        assert_eq!(lv.pop_back(), Some(5));
+        assert_eq!(lv.pop_back(), Some(6));
+        assert_eq!(lv.pop_front(), None);
+
+        assert_eq!(lv.len(), 0);
+        assert_eq!(lv.capacity(), 5);
+    }
+
+    #[test]
+    fn test_push_back_pop_back() {
+        let mut lv = LinkedVec::new(5);
+
+        lv.push_back(1);
+        lv.push_back(2);
+        lv.push_back(3);
+        lv.push_back(4);
+        lv.push_back(5);
+        lv.push_back(6);
+
+        assert_eq!(lv.len(), 6);
+        assert_eq!(lv.capacity(), 10);
+
+        assert_eq!(lv.pop_back(), Some(6));
+        assert_eq!(lv.pop_back(), Some(5));
+        assert_eq!(lv.pop_back(), Some(4));
+        assert_eq!(lv.pop_back(), Some(3));
+        assert_eq!(lv.pop_back(), Some(2));
+        assert_eq!(lv.pop_back(), Some(1));
+        assert_eq!(lv.pop_front(), None);
+
+        assert_eq!(lv.len(), 0);
+        assert_eq!(lv.capacity(), 5);
+    }
+
+    #[test]
+    fn test_empty() {
+        let mut lv: LinkedVec<i64> = LinkedVec::new(5);
+
+        assert_eq!(lv.len(), 0);
+        assert_eq!(lv.capacity(), 5);
+        assert_eq!(lv.pop_back(), None);
+        assert_eq!(lv.pop_front(), None);
+    }
+
+    #[test]
+    fn test_partially_filled_back() {
+        let mut lv: LinkedVec<i64> = LinkedVec::new(3);
+
+        lv.push_back(1);
+        lv.push_back(2);
+        lv.push_back(3);
+        lv.push_back(4);
+
+        assert_eq!(lv.len(), 4);
+        assert_eq!(lv.capacity(), 6);
+
+        lv.push_front(5);
+        assert_eq!(lv.len(), 5);
+        assert_eq!(lv.capacity(), 9);
+
+        assert_eq!(lv.pop_back(), Some(4));
+        assert_eq!(lv.len(), 4);
+        assert_eq!(lv.capacity(), 6);
+    }
+
+    #[test]
+    fn test_partially_filled_front() {
+        let mut lv: LinkedVec<i64> = LinkedVec::new(3);
+
+        lv.push_front(1);
+        lv.push_front(2);
+        lv.push_front(3);
+        lv.push_front(4);
+
+        assert_eq!(lv.len(), 4);
+        assert_eq!(lv.capacity(), 6);
+
+        lv.push_back(5);
+        assert_eq!(lv.len(), 5);
+        assert_eq!(lv.capacity(), 9);
+
+        assert_eq!(lv.pop_front(), Some(4));
+        assert_eq!(lv.len(), 4);
+        assert_eq!(lv.capacity(), 6);
     }
 }
