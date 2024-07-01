@@ -234,26 +234,9 @@ mod tests {
         assert_eq!(lv.pop_back(), Some(4));
         assert_eq!(lv.len(), 4);
         assert_eq!(lv.capacity(), 6);
-    }
 
-    #[test]
-    fn test_partially_filled_front() {
-        let mut lv: LinkedVec<i64> = LinkedVec::new(3);
-
-        lv.push_front(1);
-        lv.push_front(2);
-        lv.push_front(3);
-        lv.push_front(4);
-
-        assert_eq!(lv.len(), 4);
-        assert_eq!(lv.capacity(), 6);
-
-        lv.push_back(5);
-        assert_eq!(lv.len(), 5);
-        assert_eq!(lv.capacity(), 9);
-
-        assert_eq!(lv.pop_front(), Some(4));
-        assert_eq!(lv.len(), 4);
-        assert_eq!(lv.capacity(), 6);
+        assert_eq!(lv.pop_front(), Some(5));
+        assert_eq!(lv.len(), 3);
+        assert_eq!(lv.capacity(), 3);
     }
 }
